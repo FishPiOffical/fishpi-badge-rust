@@ -14,16 +14,22 @@
   >
     <html xmlns="http://www.w3.org/1999/xhtml">
       <style>
+        .container {
+          display: flex;
+          align-items: center;
+          flex-direction: row-reverse;
+        }
         .img {
           border-radius: {{badge.radius}}px;
           background-image: url('{{badge.b64}}');
           background-size: cover;
-          position: absolute;
-          top: {{badge.border+2.5}}px;
-          left: {{badge.border}}px;
+          background-color: #fff;
           width: {{badge.size-2*badge.border}}px;
           height: {{badge.size-2*badge.border}}px;
           box-shadow: 0px 0px {{badge.border}}px rgba(0,0,0,{{badge.shadow}});
+          z-index: 2;
+          margin-right: -{{badge.size/2 - 5}}px;
+          flex: none;
         }
         .bar {
           border-radius: 0 15px 15px 0;
@@ -33,9 +39,6 @@
           align-items: center;
           overflow: hidden;
           font-family: "HarmonyOS","Helvetica Neue","Luxi Sans","DejaVu Sans","Hiragino Sans GB","Microsoft Yahei",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji","Segoe UI Symbol","Android Emoji","EmojiSymbols" !important;
-          position: absolute;
-          top: {{badge.border+badge.size*0.1}}px;
-          left: {{badge.size/2}}px;
           height: {{(badge.size-2*badge.border)*1}}px;
           background: linear-gradient({{badge.direction}}, {{badge.color1}}, {{badge.color2}});
           box-shadow: 0px 0px {{badge.border}}px rgba(0,0,0,{{badge.shadow}});
@@ -43,6 +46,7 @@
           padding-left: {{badge.size/2}}px;
           font-size: {{badge.fontsize+1}}px;
           color: {{badge.fontcolor}};
+          z-index: 1
         }
         @keyframes move {
           from { width: 0px; }
@@ -57,12 +61,14 @@
           margin-bottom: 1.5px;
         }
       </style>
+      <div class="container">
       {% if badge.bartxt != '' %}
         <div class="bar">
           <span>{{badge.bartxt}}</span>
         </div>
       {% endif %}
-      <div class="img"></div>
+        <div class="img"></div>
+      </div>
     </html>
   </foreignObject>
 </svg>

@@ -26,7 +26,7 @@ pub struct BadgeData {
     pub radius: u32,
     pub anime: u32,
     pub direction: String,
-    pub fontway: Option<String>,
+    // pub fontway: Option<String>,
 }
 
 pub fn render_badge(data: BadgeData) -> Result<String> {

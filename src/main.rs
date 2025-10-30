@@ -1,7 +1,7 @@
 use axum::{
     extract::Query,
-    http::StatusCode,
-    response::Html,
+    http::{HeaderMap, StatusCode},
+    response::IntoResponse,
     routing::get,
     Router,
 };
@@ -31,7 +31,7 @@ struct BadgeParams {
     backcolor: Option<String>,
     anime: Option<f32>,
     way: Option<String>,
-    fontway: Option<String>,
+    // fontway: Option<String>,
 }
 
 #[tokio::main]
@@ -50,9 +50,13 @@ async fn main() {
     axum::serve(listener, app).await.unwrap();
 }
 
-async fn generate_badge(Query(params): Query<BadgeParams>) -> Result<Html<String>, StatusCode> {
+async fn generate_badge(Query(params): Query<BadgeParams>) -> Result<impl IntoResponse, StatusCode> {
     match badge::generate_badge(params).await {
-        Ok(svg) => Ok(Html(svg)),
+        Ok(svg) => {
+            let mut headers = HeaderMap::new();
+            headers.insert("content-type", "image/svg+xml".parse().unwrap());
+            Ok((StatusCode::OK, headers, svg))
+        }
         Err(e) => {
             eprintln!("badge error: {:?}", e);
             Err(StatusCode::INTERNAL_SERVER_ERROR)

@@ -65,10 +65,7 @@
           animation-fill-mode: both;
         }
         span {
-          background: linear-gradient({{badge.fontway}}, {{badge.fontcolor}});
-          background-clip: text;
-          -webkit-background-clip: text;
-          color: transparent;
+          color: {{badge.fontcolor}};
           margin-bottom: 1.5px;
         }
       </style>

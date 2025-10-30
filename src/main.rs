@@ -31,7 +31,7 @@ struct BadgeParams {
     backcolor: Option<String>,
     anime: Option<f32>,
     way: Option<String>,
-    // fontway: Option<String>,
+    fontway: Option<String>,
 }
 
 #[tokio::main]

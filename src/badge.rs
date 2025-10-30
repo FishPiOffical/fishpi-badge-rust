@@ -45,6 +45,39 @@ fn hls_to_rgb(h: f32, l: f32, s: f32) -> (u8, u8, u8) {
     }
 }
 
+fn process_fontcolor(params: &BadgeParams, backcolor_arr: [u8; 3]) -> String {
+    let mut fontcolors: Vec<String> = vec![];
+    if let Some(ref s) = params.fontcolor {
+        if s == "auto" {
+            // 基于背景亮度选择黑或白（纯色）
+            let mean = (backcolor_arr[0] as f32 + backcolor_arr[1] as f32 + backcolor_arr[2] as f32) / 3.0;
+            let fc = if mean > 214.0 { [33, 33, 33] } else { [255, 255, 255] };
+            fontcolors.push(format!("rgb({},{},{})", fc[0], fc[1], fc[2]));
+        } else if s.contains(',') {
+            // 彩色渐变
+            fontcolors = s.split(',').map(|x| {
+                let rgb = hex_to_rgb(x.trim());
+                format!("rgb({},{},{})", rgb[0], rgb[1], rgb[2])
+            }).collect();
+        } else {
+            // 单色
+            let rgb = hex_to_rgb(s);
+            let color_str = format!("rgb({},{},{})", rgb[0], rgb[1], rgb[2]);
+            fontcolors.push(color_str.clone());
+            fontcolors.push(color_str);
+        }
+    } else {
+        // 基于背景亮度选择黑或白（纯色）
+        let mean = (backcolor_arr[0] as f32 + backcolor_arr[1] as f32 + backcolor_arr[2] as f32) / 3.0;
+        let fc = if mean > 214.0 { [33, 33, 33] } else { [255, 255, 255] };
+        let color_str = format!("rgb({},{},{})", fc[0], fc[1], fc[2]);
+        fontcolors.push(color_str.clone());
+        fontcolors.push(color_str);
+    }
+    println!("Font colors: {:?}", fontcolors);
+    fontcolors.join(", ")
+}
+
 
 pub async fn generate_badge(params: BadgeParams) -> Result<String> {
     let scale = params.scale.unwrap_or(1.0);
@@ -54,23 +87,23 @@ pub async fn generate_badge(params: BadgeParams) -> Result<String> {
     let mut barradius = params.barradius.unwrap_or(size / 2);
     let anime = params.anime.unwrap_or(0.5);
     let shadow = params.shadow.unwrap_or(0.5);
-    let txt = params.txt.clone().unwrap_or_else(|| "Operater".to_string());
+    let txt = params.txt.clone().unwrap_or_default();
 
-    // barlen 处理
-    let mut barlen = if let Some(ref bl) = params.barlen {
-        if bl == "auto" {
-            let mut l = txt.chars().count() as f32;
-            let wide_count = txt.chars().filter(|c| (*c as u32) > 127).count() as f32;
-            l += wide_count * 0.84;
-            (fontsize as f32 * l * 0.55 + 2.6 * border as f32) as u32
-        } else {
-            bl.parse().unwrap_or(0)
+    let calculate_barlen = || -> u32 {
+        if txt.is_empty() {
+            return 0;
         }
-    } else {
         let mut l = txt.chars().count() as f32;
         let wide_count = txt.chars().filter(|c| (*c as u32) > 127).count() as f32;
         l += wide_count * 0.84;
         (fontsize as f32 * l * 0.55 + 2.6 * border as f32) as u32
+    };
+
+    // barlen 处理
+    let mut barlen = match params.barlen.as_deref() {
+        Some("auto") => calculate_barlen(),
+        Some(bl) => bl.parse().unwrap_or(0),
+        None => calculate_barlen(),
     };
 
     // 参数缩放
@@ -141,20 +174,7 @@ pub async fn generate_badge(params: BadgeParams) -> Result<String> {
     let colors_str = colors.join(", ");
 
     // fontcolor
-    let fontcolor_str = {
-        let fc = if let Some(ref s) = params.fontcolor {
-            if s == "auto" {
-                let mean = (backcolor_arr[0] as f32 + backcolor_arr[1] as f32 + backcolor_arr[2] as f32) / 3.0;
-                if mean > 214.0 { [33, 33, 33] } else { [255, 255, 255] }
-            } else {
-                hex_to_rgb(s)
-            }
-        } else {
-            let mean = (backcolor_arr[0] as f32 + backcolor_arr[1] as f32 + backcolor_arr[2] as f32) / 3.0;
-            if mean > 214.0 { [33, 33, 33] } else { [255, 255, 255] }
-        };
-        format!("rgb({},{},{})", fc[0], fc[1], fc[2])
-    };
+    let fontcolor_str = process_fontcolor(&params, backcolor_arr);
 
     // 定义字体
     let font_b64 = if let Some(ref font_url) = params.font {
@@ -184,18 +204,18 @@ pub async fn generate_badge(params: BadgeParams) -> Result<String> {
         None => "to bottom".to_string(),
     };
 
-    // let fontway = match params.fontway.as_deref() {
-    //     Some("right") => "to right".to_string(),
-    //     Some("left") => "to left".to_string(),
-    //     Some("top") => "to top".to_string(),
-    //     Some("bottom") => "to bottom".to_string(),
-    //     Some("top-right") => "to top right".to_string(),
-    //     Some("top-left") => "to top left".to_string(),
-    //     Some("bottom-right") => "to bottom right".to_string(),
-    //     Some("bottom-left") => "to bottom left".to_string(),
-    //     Some(custom) => custom.to_string(),
-    //     None => "to bottom".to_string(),
-    // };
+    let fontway = match params.fontway.as_deref() {
+        Some("right") => "to right".to_string(),
+        Some("left") => "to left".to_string(),
+        Some("top") => "to top".to_string(),
+        Some("bottom") => "to bottom".to_string(),
+        Some("top-right") => "to top right".to_string(),
+        Some("top-left") => "to top left".to_string(),
+        Some("bottom-right") => "to bottom right".to_string(),
+        Some("bottom-left") => "to bottom left".to_string(),
+        Some(custom) => custom.to_string(),
+        None => "to bottom".to_string(),
+    };
 
     let mime = if is_gif { "image/gif" } else { "image/webp" };
     let b64 = format!("data:{};base64,{}", mime, image_data);
@@ -216,7 +236,7 @@ pub async fn generate_badge(params: BadgeParams) -> Result<String> {
         radius: 99999,
         anime: (anime * 1000.0) as u32,
         direction,
-        // fontway: Some(fontway),
+        fontway: Some(fontway),
     };
 
     let svg = template::render_badge(badge_data)?;

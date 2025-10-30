@@ -1,15 +1,15 @@
 {% if badge.bartxt == '' %}
 {% endif %}
 <svg
-  viewBox="0 0 {{badge.size+badge.barlen+4}} {{badge.size+3}}"
-  width="{{badge.size+badge.barlen+4}}px"
+  viewBox="0 0 {{badge.size+badge.barlen+9}} {{badge.size+3}}"
+  width="{{badge.size+badge.barlen+9}}px"
   height="{{badge.size+3}}px"
   xmlns="http://www.w3.org/2000/svg"
 >
   <foreignObject
     x="0"
     y="0"
-    width="{{badge.size+badge.barlen+4}}"
+    width="{{badge.size+badge.barlen+9}}"
     height="{{badge.size+3}}"
   >
     <html xmlns="http://www.w3.org/1999/xhtml">
@@ -26,13 +26,13 @@
           background-color: #fff;
           width: {{badge.size-2*badge.border}}px;
           height: {{badge.size-2*badge.border}}px;
+          margin: {{badge.border}}px -{{(badge.size-2*badge.border)/2}}px {{badge.border}}px {{badge.border}}px;
           box-shadow: 0px 0px {{badge.border}}px rgba(0,0,0,{{badge.shadow}});
           z-index: 2;
-          margin-right: -{{badge.size/2 - 5}}px;
           flex: none;
         }
         .bar {
-          border-radius: 0 15px 15px 0;
+          border-radius: 0 {{badge.barradius}}px {{badge.barradius}}px 0;
           text-shadow: 0.8px 0.8px 1px rgba(0, 0, 0, 0.5);
           font-weight: 1000;
           display: flex;
@@ -43,7 +43,9 @@
           background: linear-gradient({{badge.direction}}, {{badge.color1}}, {{badge.color2}});
           box-shadow: 0px 0px {{badge.border}}px rgba(0,0,0,{{badge.shadow}});
           white-space: nowrap;
-          padding-left: {{badge.size/2}}px;
+          margin: {{badge.border}}px 0;
+          margin-right: {{badge.border}}px;
+          padding-left: {{badge.size/2+5}}px;
           font-size: {{badge.fontsize+1}}px;
           color: {{badge.fontcolor}};
           z-index: 1

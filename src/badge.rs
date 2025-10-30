@@ -49,7 +49,7 @@ pub async fn generate_badge(params: BadgeParams) -> Result<String> {
     let mut size = params.size.unwrap_or(32);
     let mut border = params.border.unwrap_or(3);
     let mut fontsize = params.fontsize.unwrap_or(15);
-    let mut barradius = params.barradius.unwrap_or(5);
+    let mut barradius = params.barradius.unwrap_or(size / 2);
     let anime = params.anime.unwrap_or(0.5);
     let shadow = params.shadow.unwrap_or(0.5);
     let txt = params.txt.clone().unwrap_or_else(|| "Operater".to_string());

@@ -5,7 +5,7 @@ use base64::engine::general_purpose::STANDARD;
 use base64::Engine;
 
 pub async fn process_image(url: &str, limit: u32) -> Result<(String, [u8; 3], bool)> {
-    let image_data = cache::get_or_fetch_image(url).await?;
+    let image_data = cache::get_or_fetch(url).await?;
 
     let format = image::guess_format(&image_data).unwrap_or(ImageFormat::Png);
     if format == ImageFormat::Gif {

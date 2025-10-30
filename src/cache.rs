@@ -7,7 +7,7 @@ use std::num::NonZeroUsize;
 static IMAGE_CACHE: Lazy<Mutex<LruCache<String, Vec<u8>>>> =
     Lazy::new(|| Mutex::new(LruCache::new(NonZeroUsize::new(100).unwrap())));
 
-pub async fn get_or_fetch_image(url: &str) -> Result<Vec<u8>> {
+pub async fn get_or_fetch(url: &str) -> Result<Vec<u8>> {
     {
         let mut cache = IMAGE_CACHE.lock().unwrap();
         if let Some(data) = cache.get(url) {

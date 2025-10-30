@@ -16,15 +16,17 @@ pub struct BadgeData {
     pub barlen: u32,
     pub size: u32,
     pub border: u32,
+    pub font_b64: Option<String>,
     pub fontsize: u32,
     pub fontcolor: String,
-    pub color1: String,
-    pub color2: String,
+    pub colors: Vec<String>,
+    pub colors_str: String,
     pub shadow: f32,
     pub barradius: u32,
     pub radius: u32,
     pub anime: u32,
-    pub direction: String
+    pub direction: String,
+    pub fontway: Option<String>,
 }
 
 pub fn render_badge(data: BadgeData) -> Result<String> {

@@ -1,6 +1,8 @@
-use crate::{image, template, BadgeParams};
+use crate::{image, template, cache, BadgeParams};
 use anyhow::Result;
 use palette::{FromColor, Hsl, Srgb};
+use base64::Engine;
+use base64::engine::general_purpose::STANDARD;
 
 fn hex_to_rgb(s: &str) -> [u8; 3] {
     let s = s.trim_start_matches('#');
@@ -41,6 +43,34 @@ fn hls_to_rgb(h: f32, l: f32, s: f32) -> (u8, u8, u8) {
         let b = ((b + m).clamp(0.0, 1.0) * 255.0).round() as u8;
         (r, g, b)
     }
+}
+
+fn process_fontcolor(params: &BadgeParams, backcolor_arr: [u8; 3]) -> String {
+    let mut fontcolors: Vec<String> = vec![];
+    if let Some(ref s) = params.fontcolor {
+        if s == "auto" {
+            // 基于背景亮度选择黑或白（纯色）
+            let mean = (backcolor_arr[0] as f32 + backcolor_arr[1] as f32 + backcolor_arr[2] as f32) / 3.0;
+            let fc = if mean > 214.0 { [33, 33, 33] } else { [255, 255, 255] };
+            fontcolors.push(format!("rgb({},{},{})", fc[0], fc[1], fc[2]));
+        } else if s.contains(',') {
+            // 彩色渐变
+            fontcolors = s.split(',').map(|x| {
+                let rgb = hex_to_rgb(x.trim());
+                format!("rgb({},{},{})", rgb[0], rgb[1], rgb[2])
+            }).collect();
+        } else {
+            // 单色
+            let rgb = hex_to_rgb(s);
+            fontcolors.push(format!("rgb({},{},{})", rgb[0], rgb[1], rgb[2]));
+        }
+    } else {
+        // 基于背景亮度选择黑或白（纯色）
+        let mean = (backcolor_arr[0] as f32 + backcolor_arr[1] as f32 + backcolor_arr[2] as f32) / 3.0;
+        let fc = if mean > 214.0 { [33, 33, 33] } else { [255, 255, 255] };
+        fontcolors.push(format!("rgb({},{},{})", fc[0], fc[1], fc[2]));
+    }
+    fontcolors.join(", ")
 }
 
 
@@ -88,56 +118,93 @@ pub async fn generate_badge(params: BadgeParams) -> Result<String> {
 
     // backcolor 处理
     let mut colors: Vec<String> = vec![];
-    let mut backcolor_arr = b_color;
+    let backcolor_arr;
     if let Some(ref s) = params.backcolor {
+        println!("backcolor s: {}", s);
         if s == "auto" {
             backcolor_arr = b_color;
+            // 默认渐变
+            let srgb = Srgb::new(
+                backcolor_arr[0] as f32 / 255.0,
+                backcolor_arr[1] as f32 / 255.0,
+                backcolor_arr[2] as f32 / 255.0,
+            );
+            let hsl: Hsl = Hsl::from_color(srgb);
+            println!("h: {:?}, l: {}, s: {}", hsl.hue, hsl.lightness, hsl.saturation);
+            let h_deg = hsl.hue.into_degrees();
+            let l = hsl.lightness;
+            let s_val = hsl.saturation;
+            let c1 = hls_to_rgb(h_deg, (l + 0.02).min(1.0), s_val);
+            let c2 = hls_to_rgb(h_deg, (l - 0.06).max(0.0), s_val);
+            colors.push(format!("rgb({},{},{})", c1.0, c1.1, c1.2));
+            colors.push(format!("rgb({},{},{})", c2.0, c2.1, c2.2));
         } else if s.contains(',') {
-            colors = s.split(',').map(|x| x.trim().to_string()).collect();
-            backcolor_arr = hex_to_rgb(&colors[1]);
+            colors = s.split(',').map(|x| {
+                let rgb = hex_to_rgb(x.trim());
+                format!("rgb({},{},{})", rgb[0], rgb[1], rgb[2])
+            }).collect();
+            backcolor_arr = hex_to_rgb(&colors[0]);
         } else {
-            backcolor_arr = hex_to_rgb(s);
+            // 单一颜色
+            let rgb = hex_to_rgb(s);
+            println!("backcolor单一颜色 rgb: {:?}", rgb);
+            colors.push(format!("rgb({},{},{})", rgb[0], rgb[1], rgb[2]));
+            backcolor_arr = rgb;
+            println!("backcolor单一颜色 {:?}", backcolor_arr);
         }
-    }
-
-    // 渐变色
-    let (color1_str, color2_str) = if colors.len() == 2 {
-        let c1 = hex_to_rgb(&colors[0]);
-        let c2 = hex_to_rgb(&colors[1]);
-        (format!("rgb({},{},{})", c1[0], c1[1], c1[2]), format!("rgb({},{},{})", c2[0], c2[1], c2[2]))
     } else {
+        // 默认渐变
+        backcolor_arr = b_color;
         let srgb = Srgb::new(
             backcolor_arr[0] as f32 / 255.0,
             backcolor_arr[1] as f32 / 255.0,
             backcolor_arr[2] as f32 / 255.0,
         );
         let hsl: Hsl = Hsl::from_color(srgb);
-        println!("h: {:?}, l: {}, s: {}", hsl.hue, hsl.lightness, hsl.saturation);
+        println!("背景默认渐变：h: {:?}, l: {}, s: {}", hsl.hue, hsl.lightness, hsl.saturation);
         let h_deg = hsl.hue.into_degrees();
         let l = hsl.lightness;
-        let s = hsl.saturation;
-        let c1 = hls_to_rgb(h_deg, (l + 0.02).min(1.0), s);
-        let c2 = hls_to_rgb(h_deg, (l - 0.06).max(0.0), s);
-        (format!("rgb({},{},{})", c1.0, c1.1, c1.2), format!("rgb({},{},{})", c2.0, c2.1, c2.2))
-    };
+        let s_val = hsl.saturation;
+        let c1 = hls_to_rgb(h_deg, (l + 0.02).min(1.0), s_val);
+        let c2 = hls_to_rgb(h_deg, (l - 0.06).max(0.0), s_val);
+        colors.push(format!("rgb({},{},{})", c1.0, c1.1, c1.2));
+        colors.push(format!("rgb({},{},{})", c2.0, c2.1, c2.2));
+    }
     
+    let colors_str = colors.join(", ");
+
     // fontcolor
-    let fontcolor_str = {
-        let fc = if let Some(ref s) = params.fontcolor {
-            if s == "auto" {
-                let mean = (backcolor_arr[0] as f32 + backcolor_arr[1] as f32 + backcolor_arr[2] as f32) / 3.0;
-                if mean > 214.0 { [33, 33, 33] } else { [255, 255, 255] }
-            } else {
-                hex_to_rgb(s)
-            }
+    let fontcolor_str = process_fontcolor(&params, backcolor_arr);
+
+    // 定义字体
+    let font_b64 = if let Some(ref font_url) = params.font {
+        if font_url.starts_with("http") {
+            // 下载字体并 base64 编码
+            let font_data = cache::get_or_fetch(font_url).await?;
+            Some(format!("data:font/ttf;base64,{}", STANDARD.encode(&font_data)))
         } else {
-            let mean = (backcolor_arr[0] as f32 + backcolor_arr[1] as f32 + backcolor_arr[2] as f32) / 3.0;
-            if mean > 214.0 { [33, 33, 33] } else { [255, 255, 255] }
-        };
-        format!("rgb({},{},{})", fc[0], fc[1], fc[2])
+            // 本地字体文件路径，读取并 base64 编码（仅用于测试）
+            let font_data = tokio::fs::read(font_url).await?;
+            Some(format!("data:font/ttf;base64,{}", STANDARD.encode(&font_data)))
+        }
+    } else {
+        None
     };
 
     let direction = match params.way.as_deref() {
+        Some("right") => "to right".to_string(),
+        Some("left") => "to left".to_string(),
+        Some("top") => "to top".to_string(),
+        Some("bottom") => "to bottom".to_string(),
+        Some("top-right") => "to top right".to_string(),
+        Some("top-left") => "to top left".to_string(),
+        Some("bottom-right") => "to bottom right".to_string(),
+        Some("bottom-left") => "to bottom left".to_string(),
+        Some(custom) => custom.to_string(),
+        None => "to bottom".to_string(),
+    };
+
+    let fontway = match params.fontway.as_deref() {
         Some("right") => "to right".to_string(),
         Some("left") => "to left".to_string(),
         Some("top") => "to top".to_string(),
@@ -159,15 +226,17 @@ pub async fn generate_badge(params: BadgeParams) -> Result<String> {
         barlen,
         size,
         border,
+        font_b64,
         fontsize,
         fontcolor: fontcolor_str,
-        color1: color1_str,
-        color2: color2_str,
+        colors,
+        colors_str,
         shadow,
         barradius,
         radius: 99999,
         anime: (anime * 1000.0) as u32,
         direction,
+        fontway: Some(fontway),
     };
 
     let svg = template::render_badge(badge_data)?;

@@ -22,6 +22,7 @@ struct BadgeParams {
     size: Option<u32>,
     border: Option<u32>,
     barlen: Option<String>,
+    font: Option<String>,
     fontsize: Option<u32>,
     barradius: Option<u32>,
     scale: Option<f32>,
@@ -30,6 +31,7 @@ struct BadgeParams {
     backcolor: Option<String>,
     anime: Option<f32>,
     way: Option<String>,
+    fontway: Option<String>,
 }
 
 #[tokio::main]

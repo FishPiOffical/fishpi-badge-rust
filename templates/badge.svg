@@ -14,6 +14,12 @@
   >
     <html xmlns="http://www.w3.org/1999/xhtml">
       <style>
+        {% if badge.font_b64 %}
+        @font-face {
+          font-family: 'CustomFont';
+          src: url('{{badge.font_b64}}') format('truetype');
+        }
+        {% endif %}
         .container {
           display: flex;
           align-items: center;
@@ -38,16 +44,15 @@
           display: flex;
           align-items: center;
           overflow: hidden;
-          font-family: "HarmonyOS","Helvetica Neue","Luxi Sans","DejaVu Sans","Hiragino Sans GB","Microsoft Yahei",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji","Segoe UI Symbol","Android Emoji","EmojiSymbols" !important;
+          font-family: {% if badge.font_b64 %}'CustomFont', {% endif %}"HarmonyOS","Helvetica Neue","Luxi Sans","DejaVu Sans","Hiragino Sans GB","Microsoft Yahei",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji","Segoe UI Symbol","Android Emoji","EmojiSymbols" !important;
           height: {{(badge.size-2*badge.border)*1}}px;
-          background: linear-gradient({{badge.direction}}, {{badge.color1}}, {{badge.color2}});
+          background: linear-gradient({{badge.direction}}, {{badge.colors_str}});
           box-shadow: 0px 0px {{badge.border}}px rgba(0,0,0,{{badge.shadow}});
           white-space: nowrap;
           margin: {{badge.border}}px 0;
           margin-right: {{badge.border}}px;
           padding-left: {{badge.size/2+5}}px;
           font-size: {{badge.fontsize+1}}px;
-          color: {{badge.fontcolor}};
           z-index: 1
         }
         @keyframes move {
@@ -60,6 +65,10 @@
           animation-fill-mode: both;
         }
         span {
+          background: linear-gradient({{badge.fontway}}, {{badge.fontcolor}});
+          background-clip: text;
+          -webkit-background-clip: text;
+          color: transparent;
           margin-bottom: 1.5px;
         }
       </style>

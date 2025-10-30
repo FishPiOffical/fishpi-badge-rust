@@ -1,0 +1,68 @@
+{% if badge.bartxt == '' %}
+{% endif %}
+<svg
+  viewBox="0 0 {{badge.size+badge.barlen+4}} {{badge.size+3}}"
+  width="{{badge.size+badge.barlen+4}}px"
+  height="{{badge.size+3}}px"
+  xmlns="http://www.w3.org/2000/svg"
+>
+  <foreignObject
+    x="0"
+    y="0"
+    width="{{badge.size+badge.barlen+4}}"
+    height="{{badge.size+3}}"
+  >
+    <html xmlns="http://www.w3.org/1999/xhtml">
+      <style>
+        .img {
+          border-radius: {{badge.radius}}px;
+          background-image: url('{{badge.b64}}');
+          background-size: cover;
+          position: absolute;
+          top: {{badge.border+2.5}}px;
+          left: {{badge.border}}px;
+          width: {{badge.size-2*badge.border}}px;
+          height: {{badge.size-2*badge.border}}px;
+          box-shadow: 0px 0px {{badge.border}}px rgba(0,0,0,{{badge.shadow}});
+        }
+        .bar {
+          border-radius: 0 15px 15px 0;
+          text-shadow: 0.8px 0.8px 1px rgba(0, 0, 0, 0.5);
+          font-weight: 1000;
+          display: flex;
+          align-items: center;
+          overflow: hidden;
+          font-family: "HarmonyOS","Helvetica Neue","Luxi Sans","DejaVu Sans","Hiragino Sans GB","Microsoft Yahei",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji","Segoe UI Symbol","Android Emoji","EmojiSymbols" !important;
+          position: absolute;
+          top: {{badge.border+badge.size*0.1}}px;
+          left: {{badge.size/2}}px;
+          height: {{(badge.size-2*badge.border)*1}}px;
+          background: linear-gradient({{badge.direction}}, {{badge.color1}}, {{badge.color2}});
+          box-shadow: 0px 0px {{badge.border}}px rgba(0,0,0,{{badge.shadow}});
+          white-space: nowrap;
+          padding-left: {{badge.size/2}}px;
+          font-size: {{badge.fontsize+1}}px;
+          color: {{badge.fontcolor}};
+        }
+        @keyframes move {
+          from { width: 0px; }
+          to { width: {{badge.barlen-badge.border+5}}px; }
+        }
+        .bar {
+          animation-duration: {{badge.anime}}ms;
+          animation-name: move;
+          animation-fill-mode: both;
+        }
+        span {
+          margin-bottom: 1.5px;
+        }
+      </style>
+      {% if badge.bartxt != '' %}
+        <div class="bar">
+          <span>{{badge.bartxt}}</span>
+        </div>
+      {% endif %}
+      <div class="img"></div>
+    </html>
+  </foreignObject>
+</svg>

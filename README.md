@@ -4,7 +4,7 @@
 
 > 参考自 [unv-shield](https://github.com/RimoChan/unv-shield) ，基于 Rust 重写并增加支持渐变颜色指定与 Gif 支援。
 
-<a href="https://fishpi.cn/gen?ver=0.1&scale=1&txt=%E6%91%B8%E9%B1%BC%E6%B4%BE&url=https://file.fishpi.cn/logo_raw.png&backcolor=ed8f25&fontcolor=000000" target="_blank">查看示例</a>
+<a href="https://fishpi.cn/gen?ver=0.1&scale=1&border=5&txt=%E6%91%B8%E9%B1%BC%E8%80%85%E4%BA%8B%E7%AB%9F%E6%88%90&url=https://file.fishpi.cn/logo_raw.png&backcolor=ed8f25&fontcolor=ffffff" target="_blank">查看示例</a>
 
 ## 参数列表
 

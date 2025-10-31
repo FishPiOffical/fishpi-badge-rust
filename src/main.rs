@@ -6,7 +6,7 @@ use axum::{
     Router,
 };
 use serde::Deserialize;
-use tower_http::cors::CorsLayer;
+use tower_http::{cors::CorsLayer, services::ServeFile};
 use tracing::{info, Level};
 
 mod badge;
@@ -15,6 +15,7 @@ mod template;
 mod cache;
 
 #[derive(Debug, Deserialize)]
+#[allow(dead_code)]
 struct BadgeParams {
     ver: Option<String>,
     url: Option<String>,
@@ -42,6 +43,7 @@ async fn main() {
 
     let app = Router::new()
         .route("/gen", get(generate_badge))
+        .route_service("/maker", ServeFile::new("static/index.html"))
         .layer(CorsLayer::permissive());
 
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();

@@ -54,7 +54,6 @@
         }
         .bar {
           border-radius: 0 {{badge.barradius}}px {{badge.barradius}}px 0;
-          text-shadow: 0.8px 0.8px 1px rgba(0, 0, 0, 0.5);
           font-weight: 1000;
           display: flex;
           align-items: center;
@@ -68,7 +67,12 @@
           margin-right: {{badge.border}}px;
           padding-left: {{badge.size/2+5}}px;
           font-size: {{badge.fontsize+1}}px;
-          z-index: 1
+          z-index: 1;
+        }
+        .shadow {
+          position: absolute;
+          text-shadow: 0.8px 0.8px 1px rgba(0, 0, 0, 0.5);
+          z-index: 0;
         }
         @keyframes move {
           from { width: 0px; }
@@ -85,11 +89,13 @@
           -webkit-background-clip: text;
           color: transparent;
           margin-bottom: 1.5px;
+          z-index: 1;
         }
       </style>
       <div class="container">
       {% if badge.bartxt != '' %}
         <div class="bar">
+          <span class="shadow">{{badge.bartxt}}</span>
           <span>{{badge.bartxt}}</span>
         </div>
       {% endif %}

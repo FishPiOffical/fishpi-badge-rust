@@ -4,7 +4,7 @@
 
 > 参考自 [unv-shield](https://github.com/RimoChan/unv-shield) ，基于 Rust 重写并增加支持渐变颜色指定与 Gif 支援。
 
-![示例](https://fishpi.cn/gen?ver=0.1&scale=1&txt=%E6%91%B8%E9%B1%BC%E6%B4%BE&url=https://file.fishpi.cn/logo_raw.png&backcolor=ed8f25&fontcolor=000000)
+<a href="https://fishpi.cn/gen?ver=0.1&scale=1&txt=%E6%91%B8%E9%B1%BC%E6%B4%BE&url=https://file.fishpi.cn/logo_raw.png&backcolor=ed8f25&fontcolor=000000" target="_blank">查看示例</a>
 
 ## 参数列表
 
@@ -19,8 +19,8 @@
 | fontsize | 字体大小 | 30 | 15 |
 | barradius | 文字条圆角大小 | 15 | size / 2 |
 | scale | 等比放大倍数 | 2.18 | 1.0 |
-| fontcolor | 文字颜色 | ffffff | 根据背景自动计算 |
-| backcolor | 背景色，指定渐变可使用两个颜色值，之间用`,`隔开|ffffff,000000|39241e|
+| fontcolor | 文字颜色，可以多个实现颜色渐变 | ffffff | 根据背景自动计算 |
+| backcolor | 背景色，指定渐变可使用多个颜色值，之间用`,`隔开|ffffff,000000|39241e|
 | shadow | 背景阴影的浓度。| 0.9 | 0.5 |
 | anime | 动画时间 | 5 | 0.5 |
 | way | 渐变方向 | top-left | bottom |

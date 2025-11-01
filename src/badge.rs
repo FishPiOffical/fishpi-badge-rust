@@ -183,9 +183,7 @@ pub async fn generate_badge(params: BadgeParams) -> Result<String> {
             let font_data = cache::get_or_fetch(font_url).await?;
             Some(format!("data:font/ttf;base64,{}", STANDARD.encode(&font_data)))
         } else {
-            // 本地字体文件路径，读取并 base64 编码（仅用于测试）
-            let font_data = tokio::fs::read(font_url).await?;
-            Some(format!("data:font/ttf;base64,{}", STANDARD.encode(&font_data)))
+            Some(format!("data:font/ttf;base64,{}", font_url.trim_start_matches("data:font/ttf;base64,")))
         }
     } else {
         None

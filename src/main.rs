@@ -1,12 +1,8 @@
 use axum::{
-    extract::Query,
-    http::{HeaderMap, StatusCode},
-    response::IntoResponse,
-    routing::get,
-    Router,
+    Router, extract::Query, http::{HeaderMap, StatusCode}, response::IntoResponse, routing::{get, get_service}
 };
 use serde::Deserialize;
-use tower_http::{cors::CorsLayer, services::ServeFile};
+use tower_http::{cors::CorsLayer, services::{ServeDir, ServeFile}};
 use tracing::{info, Level};
 
 mod badge;
@@ -41,13 +37,20 @@ async fn main() {
         .with_max_level(Level::DEBUG)
         .init();
 
+    let static_service = get_service(
+        ServeDir::new("static").fallback(ServeFile::new("static/404.html"))
+    )
+    .handle_error(|e| async move {
+        (StatusCode::INTERNAL_SERVER_ERROR, format!("internal error: {}", e))
+    });
+
     let app = Router::new()
         .route("/gen", get(generate_badge))
-        .route_service("/maker", ServeFile::new("static/index.html"))
+        .nest_service("/maker", static_service)
         .layer(CorsLayer::permissive());
 
-    let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
-    info!("Server running on http://0.0.0.0:3000");
+    let listener = tokio::net::TcpListener::bind("0.0.0.0:3001").await.unwrap();
+    info!("Server running on http://0.0.0.0:3001");
     
     axum::serve(listener, app).await.unwrap();
 }

@@ -26,8 +26,45 @@ use anyhow::Result;
     
 //     Ok(bytes)
 // }
+const MAX_SIZE: usize = 3 * 1024 * 1024;
+
 pub async fn get_or_fetch(url: &str) -> Result<Vec<u8>> {
     let response = reqwest::get(url).await?;
     let data = response.bytes().await?;
-    Ok(data.to_vec())
+
+    if data.len() > MAX_SIZE {
+        Ok(data[..MAX_SIZE].to_vec())
+    } else {
+        Ok(data.to_vec())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[tokio::test]
+    #[ignore]
+    async fn test_large_image_truncate() {
+        let url = "https://picsum.photos/5000/5000";
+        
+        let result = get_or_fetch(url).await;
+        assert!(result.is_ok());
+        
+        let data = result.unwrap();
+        println!("Downloaded {} bytes", data.len());
+        
+        assert!(data.len() <= 3 * 1024 * 1024);
+    }
+
+    #[tokio::test]
+    #[ignore]
+    async fn test_small_image_no_truncate() {
+        let url = "https://picsum.photos/200/200";
+        
+        let data = get_or_fetch(url).await.unwrap();
+        println!("Small image: {} bytes", data.len());
+        
+        assert!(data.len() < 1024 * 1024); 
+    }
 }

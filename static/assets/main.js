@@ -30,9 +30,9 @@ createApp({
       if (Number(badge.value.scale) != 1) {
         params.append('scale', badge.value.scale);
       }
-      params.append('backcolor', badge.value.backcolor.join(','));
+      params.append('backcolor', badge.value.backcolor.join(',').replace(/#/g, ''));
       if (badge.value.fontcolor.length > 0) {
-        params.append('fontcolor', badge.value.fontcolor.join(','));
+        params.append('fontcolor', badge.value.fontcolor.join(',').replace(/#/g, ''));
       }
       if (Number(badge.value.shadow) != 0.8) {
         params.append('shadow', badge.value.shadow);

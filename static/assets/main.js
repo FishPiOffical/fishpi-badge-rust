@@ -23,6 +23,28 @@ createApp({
     };
     const badge = ref({ ...defaultBadge });
 
+    const genAttr = computed(() => {
+      const attrs = [];
+      attrs.push(`url="${badge.value.url}"`);
+      attrs.push(`backcolor="${badge.value.backcolor.join(',')}"`);
+      if (badge.value.fontcolor.length > 0) {
+        attrs.push(`fontcolor="${badge.value.fontcolor.join(',')}"`);
+      }
+      if (badge.value.backcolor.length > 1) {
+        attrs.push(`way="${badge.value.way === 'custom' ? `${badge.value.deg}deg` : badge.value.way}"`);
+      }
+      if (badge.value.fontcolor.length > 1) {
+        attrs.push(`fontway="${badge.value.fontway === 'custom' ? `${badge.value.fontDeg}deg` : badge.value.fontway}"`);
+      }
+      if (!badge.value.barlenAuto && badge.value.barlen && Number(badge.value.barlen) > 0) {
+        attrs.push(`barlen="${badge.value.barlen}"`);
+      }
+      if (badge.value.fontname && badge.value.txt) {
+        attrs.push(`font="${getFontDataUrlForText(badge.value.txt)}"`);
+      }
+      return attrs.join('&');
+    })
+
     const genUrl = computed(() => {
       const params = new URLSearchParams();
       params.append('url', badge.value.url);

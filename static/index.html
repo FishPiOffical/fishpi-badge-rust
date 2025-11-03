@@ -32,12 +32,19 @@
     </header>
     <main id="app">
       <p class="flex-middle">
-        <img :src="genUrl" alt="Generated Badge" />
         <sl-copy-button 
           :value="location.origin + genUrl" 
           copy-label="复制地址" 
           success-label="地址已复制" 
           error-label="你的浏览器不支持复制"></sl-copy-button>
+        <img :src="genUrl" alt="Generated Badge" />
+        <sl-copy-button
+          :value="genAttr"
+          copy-label="复制属性" 
+          success-label="属性已复制" 
+          error-label="你的浏览器不支持复制">
+        <sl-icon slot="copy-icon" name="code-slash"></sl-icon>
+      </sl-copy-button>
       </p>
       <section class="form">
         <p>

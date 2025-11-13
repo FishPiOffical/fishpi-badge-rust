@@ -46,7 +46,7 @@ async fn main() {
 
     let app = Router::new()
         .route("/gen", get(generate_badge))
-        .nest_service("/maker", static_service)
+        .nest_service("/gen/maker", static_service)
         .layer(CorsLayer::permissive());
 
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3001").await.unwrap();

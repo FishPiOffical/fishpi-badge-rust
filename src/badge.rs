@@ -150,7 +150,9 @@ pub async fn generate_badge(params: BadgeParams) -> Result<String> {
         } else {
             // 单一颜色
             let rgb = hex_to_rgb(s);
-            colors.push(format!("rgb({},{},{})", rgb[0], rgb[1], rgb[2]));
+            let colors_str = format!("rgb({},{},{})", rgb[0], rgb[1], rgb[2]);
+            colors.push(colors_str.clone());
+            colors.push(colors_str);
             backcolor_arr = rgb;
         }
     } else {

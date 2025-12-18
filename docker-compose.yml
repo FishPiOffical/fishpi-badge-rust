@@ -1,12 +1,7 @@
-version: '3.8'
-
 services:
   fishpi-badge:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    image: fishpi-badge-rust:latest
     container_name: fishpi-badge
+    image: ghcr.io/FishPiOffical/fishpi-badge-rust:latest
     
     # 端口映射
     ports:
@@ -29,14 +24,6 @@ services:
     
     # 重启策略
     restart: unless-stopped
-    
-    # 健康检查
-    healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3001/gen/maker/"]
-      interval: 30s
-      timeout: 3s
-      retries: 3
-      start_period: 5s
     
     # 网络模式
     networks:

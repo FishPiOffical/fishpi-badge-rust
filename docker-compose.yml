@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  fishpi-badge:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: fishpi-badge-rust:latest
+    container_name: fishpi-badge
+    
+    # 端口映射
+    ports:
+      - "3001:3001"
+    
+    # 环境变量配置
+    environment:
+      # 日志级别: trace, debug, info, warn, error
+      - RUST_LOG=${RUST_LOG:-info}
+    
+    # 资源限制
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    
+    # 重启策略
+    restart: unless-stopped
+    
+    # 健康检查
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3001/gen/maker/"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+    
+    # 网络模式
+    networks:
+      - fishpi-network
+
+networks:
+  fishpi-network:
+    driver: bridge

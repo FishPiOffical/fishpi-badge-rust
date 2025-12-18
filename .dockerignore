@@ -1,0 +1,38 @@
+# Git 相关
+.git
+.gitignore
+.gitattributes
+
+# Rust 编译产物
+target/
+**/*.rs.bk
+*.pdb
+
+# IDE 相关
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# 文档
+README.md
+LICENSE
+*.md
+
+# 测试文件
+tests/
+benches/
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+
+# Docker 相关
+Dockerfile
+.dockerignore
+docker-compose.yml
+
+# 其他
+.DS_Store
+.env
